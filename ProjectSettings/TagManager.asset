@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Ground
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Ground
+  - Water
+  - UI
+  - Scale
+  - Player
+  - Background
+  - Buncing
+  - Enemies
+  - Spine
+  - Bullets
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Sfondo
+    uniqueID: 1578014911
+    locked: 0
+  - name: Erba
+    uniqueID: 1918581043
+    locked: 0
+  - name: Piattaforme
+    uniqueID: 474768825
+    locked: 0
+  - name: Scale
+    uniqueID: 770833647
+    locked: 0
+  - name: Enemies
+    uniqueID: 2877970489
+    locked: 0
+  - name: Spine
+    uniqueID: 3937830543
+    locked: 0
+  - name: Personaggio
+    uniqueID: 4106860893
+    locked: 0
+  - name: Acqua
+    uniqueID: 3351567413
+    locked: 0
+  - name: UI
+    uniqueID: 2022589431
+    locked: 0
