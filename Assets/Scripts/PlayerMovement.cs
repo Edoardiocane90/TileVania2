@@ -79,10 +79,6 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        var isTakingDamage = myAnimator.GetBool("isTakingDamage");
-        if (_isElapsed)
-            myAnimator.SetBool("isTakingDamage", false);
-
         switch (_playerState)
         {
             case PlayerStates.Dead:
@@ -97,7 +93,6 @@ public class PlayerMovement : MonoBehaviour
 
                 return;
             case PlayerStates.Hit:
-                Debug.Log($"IsTakingDamage: {isTakingDamage}  ||  PlayersTate: {_playerState}   ||   timer is {_hitImmunityTimer.Enabled}  ||  Lives  {CurrentLives}");
                 if (!_hitImmunityTimer.Enabled)
                 {
                     _hitImmunityTimer.Enabled = true;
@@ -150,7 +145,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void HitImmunityTimer_Elapsed(object sender, ElapsedEventArgs e)
     {
-        _playerState = CurrentLives < 0 ? PlayerStates.Dying : PlayerStates.Ok;
+        _playerState = CurrentLives <= 0 ? PlayerStates.Dying : PlayerStates.Ok;
         //Debug.Log($"Hit immunity elapsed: new player state is {_playerState}");
         _isElapsed = true;
         //Debug.Log($"I set IsTakingDamage false");
@@ -160,16 +155,6 @@ public class PlayerMovement : MonoBehaviour
     {
         var isJumping = !myFeetCollider.IsTouchingLayers(LayerMask.GetMask("Ground")) && !myBodyCollider.IsTouchingLayers(LayerMask.GetMask("Scale"));
         myAnimator.SetBool("isJumping", isJumping);
-
-
-        ////questo fa partire l animazione del salto quando solo quando non tocca il ground
-        //myAnimator.SetBool("isJumping", !myFeetCollider.IsTouchingLayers(LayerMask.GetMask("Ground")));
-
-        ////questo toglie l animazione del salto quando il personaggio tocca le scale
-        //if (myBodyCollider.IsTouchingLayers(LayerMask.GetMask("Scale"))) //se il mio capsule collider tocca il layer chiamato "Scale" allora esci da questo metodo! cosi non salta
-        //{
-        //    myAnimator.SetBool("isJumping", false);
-        //}
     }
 
 
@@ -183,31 +168,12 @@ public class PlayerMovement : MonoBehaviour
     {
         if (myFeetCollider.IsTouchingLayers(LayerMask.GetMask("Ground")) && value.isPressed)
             myRigidBody.velocity += new Vector2(0f, jumpSpeed);
-
-        //if (_playerState != PlayerStates.Ok) 
-        //    return; 
-
-        //if (!myFeetCollider.IsTouchingLayers(LayerMask.GetMask("Ground"))) //se il mio capsule collider NON tocca il layer chiamato "Ground" allora esci da questo metodo! cosi non salta
-
-        //{
-        //    return;
-        //}
-
-
-
-        //if (value.isPressed)
-        //{
-        //    myRigidBody.velocity += new Vector2(0f, jumpSpeed);
-
-        //}
-
     }
 
     void OnFire(InputValue value)
     {
         //Debug.Log("Fire");
         myAnimator.SetTrigger("IsAttacking");
-
     }
 
 
@@ -272,7 +238,7 @@ public class PlayerMovement : MonoBehaviour
         myRigidBody.velocity = _hitKnockback;
         --CurrentLives;
         //Debug.Log($"timer is {_hitImmunityTimer.Enabled} and I have {CurrentLives} lives");
-        myAnimator.SetBool("isTakingDamage", true);
+        myAnimator.SetTrigger("isTakingDamage");
     }
 
     private void Die()
