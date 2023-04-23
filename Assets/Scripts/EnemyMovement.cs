@@ -1,20 +1,15 @@
+using Assets.Scripts;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
-public enum EnemyStates
-{
-    Idle,
-    Patroling,
-    Attacking,
-    Hit,
-    Dead
-}
-
 public class EnemyMovement : MonoBehaviour
 {
+    public const int SHOOT_DAMAGE = 2;
+    public const int HIT_DAMAGE = 1;
+
     Animator myAnimator;
     CapsuleCollider2D myBodyCollider;
     CircleCollider2D myTargetCollider;
@@ -22,80 +17,58 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField] float moveSpeed = 1f;
     Vector2 fermo = new Vector2(0f, 0f);
 
-    private EnemyStates _state = EnemyStates.Patroling;
     private Rigidbody2D _playerComponent;
-    private PlayerMovement _playerMovement;
     private System.Timers.Timer _hitImmunityTimer;
+    private System.Timers.Timer _dyingTransitionTimer;
     [SerializeField] double hitImmunityTime = 500;
+    [SerializeField] double dyingTransitionTime = 500;
     [SerializeField] double verticalAttackRange = 1;
-    private bool _isAlreadyDead;
-
+    private bool _iHaveToDie;
     private const int MAX_LIVES = 3;
 
     public int CurrentLives { get; private set; } = MAX_LIVES;
+
+    public EnemyStates EnemyState { get; private set; } = EnemyStates.Idle;
 
     void Start()
     {
         myRigidBody = GetComponent<Rigidbody2D>();
         myAnimator = GetComponent<Animator>();
-        var player = GameObject.FindWithTag("Player");
-        _playerComponent = player.GetComponent<Rigidbody2D>();
-        _playerMovement = player.GetComponent<PlayerMovement>();
-        _hitImmunityTimer = new System.Timers.Timer(hitImmunityTime) { AutoReset = false };
+        SetTimers();
     }
 
 
     void Update()
     {
-        if (CurrentLives <= 0)
+        if (_playerComponent == null)
         {
-            Die();
+            Utilities.TryGetValidPlayerComponent(out _playerComponent);
             return;
         }
 
-
-        if (Math.Abs(_playerComponent.position.y - myRigidBody.position.y) < verticalAttackRange/2)
+        if (EnemyState == EnemyStates.Dying || EnemyState == EnemyStates.Dead)
         {
-            
+            if (_iHaveToDie)
+            {
+                _iHaveToDie = false;
+                SetEnemyState(EnemyStates.Dead);
+            }
+            myRigidBody.velocity = fermo;
+            return;
         }
 
+        if (Math.Abs(_playerComponent.position.y - myRigidBody.position.y) < verticalAttackRange/2 && IsFacingPlayer())
+        {
+            Shoot();
+        }
 
         Move();
-
-    }
-
-    public void TakeDamage()
-    {
-        Debug.Log($"{myRigidBody.name}: TAKING DAMAGE {DateTime.Now}");
-        if (_hitImmunityTimer.Enabled)
-            return;
-
-        _hitImmunityTimer.Enabled = true;
-
-        --CurrentLives;
-        myAnimator.SetTrigger("IsTakingDamage");
-    }
-
-    private void Die()
-    {
-        myRigidBody.velocity = fermo;
-        if (_isAlreadyDead)
-            return;
-
-        _isAlreadyDead = true;
-        myAnimator.SetTrigger("Die");
-
-    }    
-
-    private void Move()
-    {
-        myRigidBody.velocity = new Vector2(moveSpeed, 0f);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        //if (collision.rigidbody == _playerComponent)
-        //    Debug.Log("I GOT GINARDO!");
+        if (collision.gameObject.TryGetComponent<PlayerMovement>(out var playerMovement))
+            playerMovement.TakeDamage(HIT_DAMAGE);
     }
 
 
@@ -106,6 +79,74 @@ public class EnemyMovement : MonoBehaviour
 
         moveSpeed = -moveSpeed;
         FlipEnemyFacing();
+    }
+
+    public void TakeDamage(int damage)
+    {
+        //Debug.Log($"{myRigidBody.name}: TAKING DAMAGE {DateTime.Now}");
+        if (_hitImmunityTimer.Enabled)
+            return;
+
+        CurrentLives -= damage;
+        myAnimator.SetTrigger("IsTakingDamage");
+    }
+
+    public void SetEnemyState(EnemyStates newValue)
+    {
+        if (EnemyState == newValue)
+            return;
+
+        OnEnemyStateChanged(EnemyState, newValue);
+        EnemyState = newValue;
+    }
+
+    private void SetTimers()
+    {
+        _hitImmunityTimer = new System.Timers.Timer(hitImmunityTime) { AutoReset = false };
+        _dyingTransitionTimer = new System.Timers.Timer(dyingTransitionTime) { AutoReset = false };
+        _dyingTransitionTimer.Elapsed += _dyingTransitionTimer_Elapsed;
+    }
+
+    private void _dyingTransitionTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+    {
+        _iHaveToDie = true;
+    }
+
+    private void OnEnemyStateChanged(EnemyStates oldValue, EnemyStates newValue)
+    {
+        switch(oldValue, newValue)
+        {
+            case (EnemyStates.TakingDamage, _):
+                if (CurrentLives <= 0)
+                    Die();
+
+                return;
+            case (_, EnemyStates.TakingDamage):
+                _hitImmunityTimer.Enabled = true;
+                return;
+            case (_, EnemyStates.Dying):
+                _dyingTransitionTimer.Enabled = true;
+                return;
+            case (EnemyStates.Dying, EnemyStates.Dead):
+                Destroy(gameObject);
+                return;
+        }
+    }
+
+    private void Shoot()
+    {
+
+    }
+
+    private void Die()
+    {
+        myRigidBody.velocity = fermo;
+        myAnimator.SetTrigger("Die");
+    }    
+
+    private void Move()
+    {
+        myRigidBody.velocity = new Vector2(moveSpeed, 0f);
     }
 
     void FlipEnemyFacing()
