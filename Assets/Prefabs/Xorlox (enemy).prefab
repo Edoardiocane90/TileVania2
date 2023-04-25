@@ -186,4 +186,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 0.8
   hitImmunityTime: 500
+  dyingTransitionTime: 1200
   verticalAttackRange: 1
