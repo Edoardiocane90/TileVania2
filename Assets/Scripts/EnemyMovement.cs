@@ -20,21 +20,47 @@ public class EnemyMovement : MonoBehaviour
     private Rigidbody2D _playerComponent;
     private System.Timers.Timer _hitImmunityTimer;
     private System.Timers.Timer _dyingTransitionTimer;
+    private System.Timers.Timer _attackRecoveryTimer;
     [SerializeField] double hitImmunityTime = 500;
+    [SerializeField] double attackRecoveryTime = 500;
     [SerializeField] double dyingTransitionTime = 1000;
     [SerializeField] double verticalAttackRange = 1;
     private bool _iHaveToDie;
     private const int MAX_LIVES = 3;
 
+    public GameObject Bullet;
+    private bool _isBulletTime;
+
     public int CurrentLives { get; private set; } = MAX_LIVES;
 
     public EnemyStates EnemyState { get; private set; } = EnemyStates.Idle;
+
+    public XorloxFacing Facing { get; private set; } = XorloxFacing.Right;
 
     void Start()
     {
         myRigidBody = GetComponent<Rigidbody2D>();
         myAnimator = GetComponent<Animator>();
         SetTimers();
+    }
+
+    public void TakeDamage(int damage)
+    {
+        //Debug.Log($"{myRigidBody.name}: TAKING DAMAGE {DateTime.Now}");
+        if (_hitImmunityTimer.Enabled)
+            return;
+
+        CurrentLives -= damage;
+        myAnimator.SetTrigger("IsTakingDamage");
+    }
+
+    public void SetEnemyState(EnemyStates newValue)
+    {
+        if (EnemyState == newValue)
+            return;
+
+        OnEnemyStateChanged(EnemyState, newValue);
+        EnemyState = newValue;
     }
 
 
@@ -57,12 +83,20 @@ public class EnemyMovement : MonoBehaviour
             return;
         }
 
-        if (Math.Abs(_playerComponent.position.y - myRigidBody.position.y) < verticalAttackRange/2 && IsFacingPlayer())
-        {
-            Shoot();
-        }
+        UpdateEnemyFacing();
 
-        Move();
+        if (_isBulletTime)
+        {
+            //Instantiate(Bullet, transform);
+            _isBulletTime = false;
+        }
+        else if (Math.Abs(_playerComponent.position.y - myRigidBody.position.y) < verticalAttackRange/2 && IsFacingPlayer())
+            Shoot();
+
+        if (EnemyState == EnemyStates.Moving)
+            Move();
+        else
+            myRigidBody.velocity = new Vector2(0f, 0f);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -81,29 +115,11 @@ public class EnemyMovement : MonoBehaviour
         FlipEnemyFacing();
     }
 
-    public void TakeDamage(int damage)
-    {
-        //Debug.Log($"{myRigidBody.name}: TAKING DAMAGE {DateTime.Now}");
-        if (_hitImmunityTimer.Enabled)
-            return;
-
-        CurrentLives -= damage;
-        myAnimator.SetTrigger("IsTakingDamage");
-    }
-
-    public void SetEnemyState(EnemyStates newValue)
-    {
-        if (EnemyState == newValue)
-            return;
-
-        OnEnemyStateChanged(EnemyState, newValue);
-        EnemyState = newValue;
-    }
-
     private void SetTimers()
     {
         _hitImmunityTimer = new System.Timers.Timer(hitImmunityTime) { AutoReset = false };
         _dyingTransitionTimer = new System.Timers.Timer(dyingTransitionTime) { AutoReset = false };
+        _attackRecoveryTimer = new System.Timers.Timer(attackRecoveryTime) { AutoReset = false };
         _dyingTransitionTimer.Elapsed += _dyingTransitionTimer_Elapsed;
     }
 
@@ -124,6 +140,10 @@ public class EnemyMovement : MonoBehaviour
             case (_, EnemyStates.TakingDamage):
                 _hitImmunityTimer.Enabled = true;
                 return;
+            case (EnemyStates.LongRangeAttack, _):
+                _attackRecoveryTimer.Enabled = true;
+                _isBulletTime = true;
+                return;
             case (_, EnemyStates.Dying):
                 _dyingTransitionTimer.Enabled = true;
                 return;
@@ -133,9 +153,17 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 
+    private void UpdateEnemyFacing()
+    {
+        Facing = (XorloxFacing)Math.Sign(transform.localScale.x);
+    }
+
     private void Shoot()
     {
+        if (_attackRecoveryTimer.Enabled)
+            return;
 
+        myAnimator.SetTrigger("IsAttacking");
     }
 
     private void Die()
@@ -151,14 +179,14 @@ public class EnemyMovement : MonoBehaviour
 
     void FlipEnemyFacing()
     {
-        transform.localScale = new Vector2(Mathf.Sign(myRigidBody.velocity.x), 1f);
+        var newFacing = -1 * (int)Facing;
+        transform.localScale = new Vector2(newFacing, 1f);
     }
 
     private bool IsFacingPlayer()
     {
-        var isFacingRight = myRigidBody.velocity.x > 0;
         var playerIsAtMyRight = myRigidBody.position.x - _playerComponent.position.x < 0;
-        return isFacingRight && playerIsAtMyRight || !isFacingRight && !playerIsAtMyRight;
+        return Facing == XorloxFacing.Right && playerIsAtMyRight || Facing == XorloxFacing.Left && !playerIsAtMyRight;
     }
 
 }

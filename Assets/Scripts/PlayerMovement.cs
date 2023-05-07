@@ -29,6 +29,7 @@ public class PlayerMovement : MonoBehaviour
     public const int MAX_LIVES = 5;
     public const int SHOOT_DAMAGE = 1;
     public const int HIT_DAMAGE = 1;
+    public const int SPINE_DAMAGE = 1;
 
     Vector2 moveInput;
     Rigidbody2D myRigidBody;
@@ -75,6 +76,9 @@ public class PlayerMovement : MonoBehaviour
 
         if (IsInstantDeath())
             SetPlayerState(PlayerStates.Dead);
+
+        if (IsCollision(new[] { "Spine" }) && !_hitImmunityTimer.Enabled)
+            TakeHit(SPINE_DAMAGE);
 
         ExecutePlayerActions();
     }
@@ -167,9 +171,9 @@ public class PlayerMovement : MonoBehaviour
         ClimbLadder();
     }
 
-    private bool IsEnemyCollision()
+    private bool IsCollision(string[] layerNames)
     {
-        return myBodyCollider.IsTouchingLayers(LayerMask.GetMask("Enemies", "Spine")) || myFeetCollider.IsTouchingLayers(LayerMask.GetMask("Enemies", "Spine"));
+        return myBodyCollider.IsTouchingLayers(LayerMask.GetMask(layerNames)) || myFeetCollider.IsTouchingLayers(LayerMask.GetMask(layerNames));
     }
 
     private bool IsInstantDeath()

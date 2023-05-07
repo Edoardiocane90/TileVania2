@@ -27,6 +27,12 @@ namespace Assets.Scripts
         Dead
     }
 
+    public enum XorloxFacing
+    {
+        Right = -1,
+        Left = 1
+    }
+
     public static class Utilities
     {
         public static bool TryGetValidPlayerMovement(out PlayerMovement playerMovement)
