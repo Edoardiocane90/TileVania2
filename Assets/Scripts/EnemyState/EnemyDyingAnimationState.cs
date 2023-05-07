@@ -1,17 +1,13 @@
 using Assets.Scripts;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerJumpingAnimationState : StateMachineBehaviour
+public class EnemyDyingAnimationState : StateMachineBehaviour
 {
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (!Utilities.TryGetValidPlayerMovement(out var playerMovement))
-            return;
-
-        playerMovement.SetPlayerState(PlayerStates.Jumping);
+        var enemyMovement = animator.GetComponent<EnemyMovement>();
+        enemyMovement.SetEnemyState(EnemyStates.Dying);
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks

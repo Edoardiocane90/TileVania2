@@ -21,7 +21,7 @@ public class EnemyMovement : MonoBehaviour
     private System.Timers.Timer _hitImmunityTimer;
     private System.Timers.Timer _dyingTransitionTimer;
     [SerializeField] double hitImmunityTime = 500;
-    [SerializeField] double dyingTransitionTime = 500;
+    [SerializeField] double dyingTransitionTime = 1000;
     [SerializeField] double verticalAttackRange = 1;
     private bool _iHaveToDie;
     private const int MAX_LIVES = 3;
@@ -141,7 +141,7 @@ public class EnemyMovement : MonoBehaviour
     private void Die()
     {
         myRigidBody.velocity = fermo;
-        myAnimator.SetTrigger("Die");
+        myAnimator.SetTrigger("Dying");
     }    
 
     private void Move()
