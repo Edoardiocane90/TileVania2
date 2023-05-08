@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 2932052715680113668}
   - component: {fileID: 4163034777304247949}
   - component: {fileID: 7872154747277901743}
+  - component: {fileID: -8412373459985019962}
+  - component: {fileID: 4005990424685480670}
   m_Layer: 12
   m_Name: Bullet
   m_TagString: Untagged
@@ -105,3 +107,50 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &-8412373459985019962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5507401054813246946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68b30f442f84722489e56d1dbf1f1f56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ParentScript: {fileID: 0}
+--- !u!60 &4005990424685480670
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5507401054813246946}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 2.625, y: 1.25}
+    newSize: {x: 2.625, y: 1.25}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: -0.86658096, y: -0.14693928}
+      - {x: -0.6624985, y: -0.38877583}
+      - {x: -0.66275406, y: -0.39923382}
+      - {x: -0.43724442, y: -0.17882538}
+      - {x: -0.4540825, y: -0.19285679}
+      - {x: -0.4540825, y: -0.16581726}
+      - {x: -0.550766, y: -0.036478996}
+      - {x: -0.66581726, y: 0.09489727}
+      - {x: -0.71199036, y: 0.021427155}

@@ -22,7 +22,7 @@ public class EnemyMovement : MonoBehaviour
     private System.Timers.Timer _dyingTransitionTimer;
     private System.Timers.Timer _attackRecoveryTimer;
     [SerializeField] double hitImmunityTime = 500;
-    [SerializeField] double attackRecoveryTime = 500;
+    [SerializeField] double attackRecoveryTime = 1000;
     [SerializeField] double dyingTransitionTime = 1000;
     [SerializeField] double verticalAttackRange = 1;
     private bool _iHaveToDie;
@@ -87,7 +87,7 @@ public class EnemyMovement : MonoBehaviour
 
         if (_isBulletTime)
         {
-            //Instantiate(Bullet, transform);
+            GenerateBullet();
             _isBulletTime = false;
         }
         else if (Math.Abs(_playerComponent.position.y - myRigidBody.position.y) < verticalAttackRange/2 && IsFacingPlayer())
@@ -151,6 +151,13 @@ public class EnemyMovement : MonoBehaviour
                 Destroy(gameObject);
                 return;
         }
+    }
+
+    private void GenerateBullet()
+    {
+        var bullet = Instantiate(Bullet, transform.position, transform.rotation);
+        var bulletMovement = bullet.GetComponent<BulletMovement>();
+        bulletMovement.ParentScript = this;
     }
 
     private void UpdateEnemyFacing()
