@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,6 +34,12 @@ namespace Assets.Scripts
         Left = 1
     }
 
+    public enum HeartState
+    {
+        Empty,
+        Full
+    }
+
     public static class Utilities
     {
         public static bool TryGetValidPlayerMovement(out PlayerMovement playerMovement)
@@ -44,6 +51,7 @@ namespace Assets.Scripts
 
             return true;
         }
+
         public static bool TryGetValidPlayerComponent(out Rigidbody2D playerComponent)
         {
             playerComponent = null;
@@ -53,5 +61,7 @@ namespace Assets.Scripts
 
             return true;
         }
+
+        public static T ParseEnum<T>(string value) => (T)Enum.Parse(typeof(T), value, true);
     }
 }

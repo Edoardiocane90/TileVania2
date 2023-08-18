@@ -21,11 +21,14 @@ public class EnemyMovement : MonoBehaviour
     private System.Timers.Timer _hitImmunityTimer;
     private System.Timers.Timer _dyingTransitionTimer;
     private System.Timers.Timer _attackRecoveryTimer;
-    [SerializeField] double hitImmunityTime = 500;
-    [SerializeField] double attackRecoveryTime = 1000;
-    [SerializeField] double dyingTransitionTime = 1000;
-    [SerializeField] double verticalAttackRange = 1;
+    [SerializeField] double hitImmunityTime = 500d;
+    [SerializeField] double attackRecoveryTime = 1000d;
+    [SerializeField] double dyingTransitionTime = 1000d;
+    [SerializeField] double verticalAttackRange = 1d;
+    [SerializeField] double horizontalAttackRange = 1d;
+    [SerializeField] double backAttackRange = 1d;
     private bool _iHaveToDie;
+    private bool _suppressEvents = false;
     private const int MAX_LIVES = 3;
 
     public GameObject Bullet;
@@ -90,8 +93,10 @@ public class EnemyMovement : MonoBehaviour
             GenerateBullet();
             _isBulletTime = false;
         }
-        else if (Math.Abs(_playerComponent.position.y - myRigidBody.position.y) < verticalAttackRange/2 && IsFacingPlayer())
+        else if (IsPlayerInAttackRange(verticalAttackRange, horizontalAttackRange, false))
             Shoot();
+        else if (IsPlayerInAttackRange(verticalAttackRange, backAttackRange, true))
+            BackAttack();
 
         if (EnemyState == EnemyStates.Moving)
             Move();
@@ -101,14 +106,14 @@ public class EnemyMovement : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.TryGetComponent<PlayerMovement>(out var playerMovement))
+        if (!_suppressEvents && collision.gameObject.TryGetComponent<PlayerMovement>(out var playerMovement))
             playerMovement.TakeDamage(HIT_DAMAGE);
     }
 
 
     void OnTriggerExit2D(Collider2D other)
     {
-        if (other.GetComponent<Rigidbody2D>() == _playerComponent)
+        if (!_suppressEvents && other.GetComponent<Rigidbody2D>() == _playerComponent)
             return;
 
         moveSpeed = -moveSpeed;
@@ -130,7 +135,7 @@ public class EnemyMovement : MonoBehaviour
 
     private void OnEnemyStateChanged(EnemyStates oldValue, EnemyStates newValue)
     {
-        switch(oldValue, newValue)
+        switch (oldValue, newValue)
         {
             case (EnemyStates.TakingDamage, _):
                 if (CurrentLives <= 0)
@@ -144,13 +149,27 @@ public class EnemyMovement : MonoBehaviour
                 _attackRecoveryTimer.Enabled = true;
                 _isBulletTime = true;
                 return;
+            case (EnemyStates.ShortRangeAttack, _):
+                _attackRecoveryTimer.Enabled = true;
+                return;
             case (_, EnemyStates.Dying):
+                _suppressEvents = true;
                 _dyingTransitionTimer.Enabled = true;
                 return;
             case (EnemyStates.Dying, EnemyStates.Dead):
+                _suppressEvents = true;
                 Destroy(gameObject);
                 return;
         }
+    }
+
+    private bool IsPlayerInAttackRange(double verticalAttackRange, double horizontalAttackRange, bool isBackAttack)
+    {
+        var isFacingPlayer = IsFacingPlayer();
+        var isPlayerFacingAttack = isBackAttack ? !isFacingPlayer : isFacingPlayer;
+        return Math.Abs(_playerComponent.position.y - myRigidBody.position.y) < verticalAttackRange / 2 &&
+               Math.Abs(_playerComponent.position.x - myRigidBody.position.x) < horizontalAttackRange &&
+               isPlayerFacingAttack;
     }
 
     private void GenerateBullet()
@@ -173,11 +192,19 @@ public class EnemyMovement : MonoBehaviour
         myAnimator.SetTrigger("IsAttacking");
     }
 
+    private void BackAttack()
+    {
+        if (_attackRecoveryTimer.Enabled)
+            return;
+
+        myAnimator.SetTrigger("IsAttackingBackwards");
+    }
+
     private void Die()
     {
         myRigidBody.velocity = fermo;
         myAnimator.SetTrigger("Dying");
-    }    
+    }
 
     private void Move()
     {

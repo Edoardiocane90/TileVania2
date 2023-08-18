@@ -46,8 +46,8 @@ public class PlayerMovement : MonoBehaviour
     float gravityScaleIniziale;
     private Timer _hitImmunityTimer = new Timer(1000) { AutoReset = false };
     private Timer _dyingTransitionTimer = new Timer(500) { AutoReset = false };
-    private int _count;
     private bool _suppressEvents;
+    private HealthUiCommands _uiCommands;
 
     public int CurrentLives { get; private set; } = MAX_LIVES;
 
@@ -61,6 +61,10 @@ public class PlayerMovement : MonoBehaviour
         gravityScaleIniziale = myRigidBody.gravityScale;
         myFeetCollider = GetComponent<BoxCollider2D>();
         SetTimers();
+
+        var ui = GameObject.FindWithTag("UI");
+        if (ui != null && ui.TryGetComponent<HealthUiCommands>(out var uiCommands))
+            _uiCommands = uiCommands;
     }
 
     void Update()
@@ -178,7 +182,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool IsInstantDeath()
     {
-        return myBodyCollider.IsTouchingLayers(LayerMask.GetMask("Mare"));
+        return IsCollision(new[] { "Water" });
     }
 
     private void SetTimers()
@@ -252,6 +256,7 @@ public class PlayerMovement : MonoBehaviour
         myRigidBody.velocity = _hitKnockback;
         CurrentLives -= damage;
         myAnimator.SetTrigger("isTakingDamage");
+        _uiCommands.LooseHeart();
     }
 
     private void Die()

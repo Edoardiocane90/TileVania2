@@ -8,12 +8,15 @@ public class BulletMovement : MonoBehaviour
 
     public EnemyMovement ParentScript;
 
+    [SerializeField] double timeOfExistence = 500;
+
     private bool _isFirstTimeInstance = true;
+    private System.Timers.Timer TimerOfExistence;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        TimerOfExistence = new System.Timers.Timer(timeOfExistence) { AutoReset = false, Enabled = true };
     }
 
     // Update is called once per frame
@@ -24,6 +27,9 @@ public class BulletMovement : MonoBehaviour
             _isFirstTimeInstance = false;
             transform.localScale = new Vector2((int)ParentScript.Facing, 1f);
         }
+
+        if (TimerOfExistence.Enabled == false)
+            Destroy(gameObject);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
