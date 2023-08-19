@@ -52,7 +52,7 @@ namespace Assets.Scripts
             return true;
         }
 
-        public static bool TryGetValidPlayerComponent(out Rigidbody2D playerComponent)
+        public static bool TryGetValidPlayerRigidBodyComponent(out Rigidbody2D playerComponent)
         {
             playerComponent = null;
             var player = GameObject.FindWithTag("Player");

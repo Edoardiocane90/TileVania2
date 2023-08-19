@@ -71,7 +71,7 @@ public class EnemyMovement : MonoBehaviour
     {
         if (_playerComponent == null)
         {
-            Utilities.TryGetValidPlayerComponent(out _playerComponent);
+            Utilities.TryGetValidPlayerRigidBodyComponent(out _playerComponent);
             return;
         }
 

@@ -144,6 +144,7 @@ public class PlayerMovement : MonoBehaviour
         {
             case (_, PlayerStates.Dead):
                 _suppressEvents = true;
+                _uiCommands.IsGameOver = true;
                 return;
             case (_, PlayerStates.Dying):
                 _dyingTransitionTimer.Enabled = true;
@@ -182,7 +183,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool IsInstantDeath()
     {
-        return IsCollision(new[] { "Water" });
+        return myRigidBody.transform.position.y < -5;
     }
 
     private void SetTimers()
