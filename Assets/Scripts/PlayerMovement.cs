@@ -138,6 +138,16 @@ public class PlayerMovement : MonoBehaviour
         return true;
     }
 
+    public bool Heal(int heartsHealed)
+    {
+        if (CurrentLives == MAX_LIVES)
+            return false;
+
+        CurrentLives = Math.Min(CurrentLives + heartsHealed, MAX_LIVES);
+        _uiCommands.GainHeart();
+        return true;
+    }
+
     private void OnPlayerStateChanged(PlayerStates oldState, PlayerStates newState)
     {
         switch (oldState, newState)
