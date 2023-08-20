@@ -47,7 +47,7 @@ public class PlayerMovement : MonoBehaviour
     private Timer _hitImmunityTimer = new Timer(1000) { AutoReset = false };
     private Timer _dyingTransitionTimer = new Timer(500) { AutoReset = false };
     private bool _suppressEvents;
-    private HealthUiCommands _uiCommands;
+    private UiCommands _uiCommands;
 
     public int CurrentLives { get; private set; } = MAX_LIVES;
 
@@ -63,7 +63,7 @@ public class PlayerMovement : MonoBehaviour
         SetTimers();
 
         var ui = GameObject.FindWithTag("UI");
-        if (ui != null && ui.TryGetComponent<HealthUiCommands>(out var uiCommands))
+        if (ui != null && ui.TryGetComponent<UiCommands>(out var uiCommands))
             _uiCommands = uiCommands;
     }
 

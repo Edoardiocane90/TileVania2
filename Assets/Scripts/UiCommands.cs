@@ -5,11 +5,15 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Assets.Scripts;
+using TMPro;
 
-public class HealthUiCommands : MonoBehaviour
+public class UiCommands : MonoBehaviour
 {
+    private const int MAX_COIN_NUMBER = 99;
+
     private readonly Dictionary<(int, HeartState), GameObject> _heartChildDictionary = new Dictionary<(int, HeartState), GameObject>();
     private GameObject _gameOverSign;
+    private GameObject _coinsIndicator;
     private object _lockHealthOperations = new object();
 
     //l'evento di game over non è settato direttamente quando i cuori vanno a 0 perchè voglio un pelo di ritardo.
@@ -17,6 +21,8 @@ public class HealthUiCommands : MonoBehaviour
     public bool IsGameOver { get; set; } = false;
 
     public int MaxHealth { get; private set; } = 1;
+
+    public int Coins { get; private set; } = 0;
 
     public void SetMaxHealth(int maxHeartNumber)
     {
@@ -62,6 +68,14 @@ public class HealthUiCommands : MonoBehaviour
         }
     }
 
+    public void AddCoins(int coinNumber)
+    {
+        if (Coins >= MAX_COIN_NUMBER)
+            return;
+
+        Coins += 1;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -75,6 +89,9 @@ public class HealthUiCommands : MonoBehaviour
     {
         if (IsGameOver)
             SetGameOverSignVisibility(true);
+
+        var text = _coinsIndicator.GetComponent<TextMeshProUGUI>();
+        text.text = Coins.ToString();
     }
 
     private void GetChildren()
@@ -86,18 +103,23 @@ public class HealthUiCommands : MonoBehaviour
         {
             var child = transform.GetChild(i);
             var splitName = child.name.Split('_', StringSplitOptions.RemoveEmptyEntries);
-            if (splitName.Length == 1 && splitName.First() == "GameOverSign")
+            switch(splitName.Length)
             {
-                _gameOverSign = child.gameObject;
-                continue;
+                case 1:
+                    if (splitName.First() == "GameOverSign")
+                        _gameOverSign = child.gameObject;
+                    else if (splitName.First() == "Coins")
+                        _coinsIndicator = child.gameObject;
+
+                    continue;
+                case 3:
+                    var childIndex = int.Parse(splitName.Last());
+                    var heartState = Utilities.ParseEnum<HeartState>(splitName[1]);
+                    _heartChildDictionary.Add((childIndex, heartState), child.gameObject);
+                    break;
+                default:
+                    continue;
             }
-
-            if (splitName.Length != 3 || splitName.First() != "Heart")
-                continue;
-
-            var childIndex = int.Parse(splitName.Last());
-            var heartState = Utilities.ParseEnum<HeartState>(splitName[1]);
-            _heartChildDictionary.Add((childIndex, heartState), child.gameObject);
         }
     }
 

@@ -2,6 +2,7 @@ using Assets.Scripts;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 
@@ -33,6 +34,7 @@ public class EnemyMovement : MonoBehaviour
 
     public GameObject Bullet;
     private bool _isBulletTime;
+    private LootTable _lootTable;
 
     public int CurrentLives { get; private set; } = MAX_LIVES;
 
@@ -44,6 +46,7 @@ public class EnemyMovement : MonoBehaviour
     {
         myRigidBody = GetComponent<Rigidbody2D>();
         myAnimator = GetComponent<Animator>();
+        Utilities.TryGetLootTable(out _lootTable);
         SetTimers();
     }
 
@@ -158,6 +161,7 @@ public class EnemyMovement : MonoBehaviour
                 return;
             case (EnemyStates.Dying, EnemyStates.Dead):
                 _suppressEvents = true;
+                SpawnReward();
                 Destroy(gameObject);
                 return;
         }
@@ -221,6 +225,17 @@ public class EnemyMovement : MonoBehaviour
     {
         var playerIsAtMyRight = myRigidBody.position.x - _playerComponent.position.x < 0;
         return Facing == XorloxFacing.Right && playerIsAtMyRight || Facing == XorloxFacing.Left && !playerIsAtMyRight;
+    }
+
+    private void SpawnReward(int absoluteRewardProbability = 100)
+    {
+        var loot = Utilities.GetLootReward(absoluteRewardProbability);
+        if (loot == null)
+            return;
+
+        var renderedLoot = Instantiate(loot);
+        renderedLoot.SetActive(true);
+        renderedLoot.transform.position = transform.position;
     }
 
 }

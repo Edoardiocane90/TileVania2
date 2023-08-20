@@ -171,6 +171,7 @@ SpriteAtlas:
   - {fileID: 296319920, guid: 6c85497805d25a3459d01134535df05d, type: 3}
   - {fileID: -1038951279, guid: ddaf0ba8017a64c4c98efdbbe96c449e, type: 3}
   - {fileID: -1160824438, guid: ddaf0ba8017a64c4c98efdbbe96c449e, type: 3}
+  - {fileID: 21300000, guid: e7de0a79b8586574b86b26c7bb49ca3e, type: 3}
   - {fileID: 21300000, guid: 9020ceaa2467bb443a441f58977e2a20, type: 3}
   - {fileID: 1710065998, guid: 8be1b6ebedd93e6409e931731ee6cc68, type: 3}
   - {fileID: -1049767406, guid: 8be1b6ebedd93e6409e931731ee6cc68, type: 3}
@@ -507,6 +508,7 @@ SpriteAtlas:
   - Elementi_Nuvole Mare_9
   - fiore molla_0
   - fiore molla_1
+  - coin
   - SPA_Ladder
   - animazioni mostro (ritaglio) layer migliorati_12
   - animazioni mostro (ritaglio) layer migliorati_13
